@@ -1,0 +1,82 @@
+# This script requires some environment variables which are set in the .env file.
+# You should modify them to your requirements
+
+version: "2"
+
+networks:
+  public:
+    driver_opts:
+      encrypted: 1
+  private:
+    internal: true
+    driver_opts:
+      encrypted: 1
+
+services:
+  odoo:
+    image: odoo:$ODOO_VERSION
+    depends_on:
+      - db
+    environment:
+      - TEST_ENABLE=$TEST_ENABLE
+      - PROJECT=$PROJECT
+      - MODULES_DIR=$MODULES_DIR
+    volumes:
+      - ./.filestore/:/var/lib/odoo/filestore
+      - ./:/etc/odoo
+      - ../:/opt/odoo/project
+    user: root
+    entrypoint: /etc/odoo/entrypoint.sh
+    command:
+      /bin/sh -c "odoo --db_user odoo --db_password odoo --db_host db --db_port 5432
+      --proxy-mode --smtp-port 1025 --smtp mailhog --dev all --longpolling-port 8072
+      --addons-path $$ADDONS_PATH $$TEST_COMMAND"
+    networks:
+      - public
+      - private
+
+  db:
+    image: postgres:$PG_VERSION
+    shm_size: 512mb
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+      - PGDATA=$PGDATA
+    volumes:
+      - ./.postgres/pg/$PROJECT:/var/lib/postgresql/data/pgdata-odoo/
+    networks:
+      - private
+
+  mailhog:
+    image: mailhog/mailhog
+    environment:
+      - MH_UI_WEB_PATH=MailHog
+      - MH_STORAGE=maildir
+      - MH_MAILDIR_PATH=/maildir
+    volumes:
+      - ./.mailhog/:/maildir
+    networks:
+      - private
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx_template.conf
+    ports:
+      - "$ODOO_PORT:$ODOO_PORT"
+    networks:
+      - public
+      - private
+    depends_on:
+      - odoo
+      - mailhog
+    environment:
+      - ODOO_PORT=$ODOO_PORT
+      - ODOO_URL=$ODOO_URL
+    command:
+      /bin/sh -c " echo 'Access Odoo on    http://localhost:$ODOO_PORT         or
+      http://$ODOO_URL:$ODOO_PORT' && echo 'Access MailHog on
+      http://localhost:$ODOO_PORT/MailHog or http://$ODOO_URL:$ODOO_PORT/MailHog' &&
+      envsubst '$$ODOO_PORT $$ODOO_URL' < /etc/nginx/nginx_template.conf >
+      /etc/nginx/nginx.conf && exec nginx -g 'daemon off;' "
