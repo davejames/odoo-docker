@@ -3,9 +3,9 @@
 # Script will start as root, run any system commands here
 
 # Launch the Odoo server
-export ADDONS_PATH=$(find /opt/odoo/project/$PROJECT -type f \
+export ADDONS_PATH=$(find -L /opt/odoo/project/$PROJECT -type f \
   -name "__manifest__.py" -or -name "__openerp__.py" 2>/dev/null | \
-  sed -r 's|\/[^/]+\/[^/]+$||' | sort | uniq | paste -s -d, -)
+  grep -E -v "/setup/" | sed -r 's|\/[^/]+\/[^/]+$||' | sort | uniq | paste -s -d, -)
 
 case $TEST_ENABLE in
   test)
