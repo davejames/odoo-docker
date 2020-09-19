@@ -1,0 +1,4 @@
+This directory is for scripts that will be run when the Odoo container is
+launched if its name matches the COMPOSE_PROJECT_NAME environment variable.
+
+eg. my-project.sh if COMPOSE_PROJECT_NAME=my-project

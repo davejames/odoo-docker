@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Script will start as root, run any system commands here
-
 # Launch the Odoo server
 export ADDONS_PATH=$(find -L /opt/odoo/project/$PROJECT -type f \
   -name "__manifest__.py" -or -name "__openerp__.py" 2>/dev/null | \
@@ -25,5 +23,7 @@ case $TEST_ENABLE in
     export TEST_COMMAND="--workers=2"
     ;;
 esac
+
+source /etc/odoo/configs/$COMPOSE_PROJECT_NAME.sh
 
 source /entrypoint.sh

@@ -18,10 +18,12 @@ services:
     depends_on:
       - db
     environment:
-      - TEST_ENABLE=$TEST_ENABLE
-      - PROJECT=$PROJECT
-      - MODULES_DIR=$MODULES_DIR
-      - INIT_MODULES=$INIT_MODULES
+      - TEST_ENABLE
+      - PROJECT
+      - MODULES_DIR
+      - INIT_MODULES
+      - OTHER_PARAMS
+      - COMPOSE_PROJECT_NAME
     volumes:
       - ./.filestore/:/var/lib/odoo/filestore
       - ./:/etc/odoo
@@ -31,7 +33,7 @@ services:
     command:
       /bin/sh -c "odoo --db_user odoo --db_password odoo --db_host db --db_port 5432
       --proxy-mode --smtp-port 1025 --smtp mailhog --data-dir /var/lib/odoo --dev all --longpolling-port 8072
-      --addons-path $$ADDONS_PATH $$TEST_COMMAND"
+      --addons-path $$ADDONS_PATH $$TEST_COMMAND $$OTHER_PARAMS"
     networks:
       - public
       - private
@@ -43,7 +45,7 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_PASSWORD=odoo
       - POSTGRES_USER=odoo
-      - PGDATA=$PGDATA
+      - PGDATA
     volumes:
       - ./.postgres/pg/$PROJECT:/var/lib/postgresql/data/pgdata-odoo/
     networks:
@@ -73,8 +75,8 @@ services:
       - odoo
       - mailhog
     environment:
-      - ODOO_PORT=$ODOO_PORT
-      - PROJECT_NAME=$COMPOSE_PROJECT_NAME
+      - ODOO_PORT
+      - COMPOSE_PROJECT_NAME
     command:
       /bin/sh -c " echo 'Access Odoo on    http://localhost:$ODOO_PORT         or
       http://$COMPOSE_PROJECT_NAME.local:$ODOO_PORT' && echo 'Access MailHog on
