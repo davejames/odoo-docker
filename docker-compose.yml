@@ -51,6 +51,19 @@ services:
     networks:
       - private
 
+  pgweb:
+    image: sosedoff/pgweb:0.11.6
+    links:
+      - db:db
+    environment:
+      - DATABASE_URL=postgres://odoo:odoo@db:5432/postgres?sslmode=disable
+    depends_on:
+      - db
+    networks:
+      - private
+    command:
+      /usr/bin/pgweb --bind=0.0.0.0 --listen=8081 --prefix=pgweb
+
   mailhog:
     image: mailhog/mailhog
     environment:
