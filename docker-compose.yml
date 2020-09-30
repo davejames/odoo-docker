@@ -87,6 +87,7 @@ services:
     depends_on:
       - odoo
       - mailhog
+      - pgweb
     environment:
       - ODOO_PORT
       - COMPOSE_PROJECT_NAME
