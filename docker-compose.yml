@@ -25,7 +25,7 @@ services:
       - OTHER_PARAMS
       - COMPOSE_PROJECT_NAME
     volumes:
-      - ./.filestore/:/var/lib/odoo/filestore
+      - ./.filestore/$PROJECT:/var/lib/odoo/filestore
       - ./:/etc/odoo
       - ../:/opt/odoo/project
     user: root
