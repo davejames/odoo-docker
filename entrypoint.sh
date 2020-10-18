@@ -5,6 +5,10 @@ export ADDONS_PATH=$(find -L /opt/odoo/project/$PROJECT -type f \
   -name "__manifest__.py" -or -name "__openerp__.py" 2>/dev/null | \
   grep -E -v "/setup/" | sed -r 's|\/[^/]+\/[^/]+$||' | sort | uniq | paste -s -d, -)
 
+export PIP_REQS=$(find -L /opt/odoo/project/$PROJECT -type f -name "requirements.txt" \
+  -exec cat {} \; 2> /dev/null | sort |uniq | paste -sd " " -)
+python3 -m pip install $PIP_REQS 2>/dev/null
+
 case $TEST_ENABLE in
   test)
     export TEST_COMMAND="--test-enable --workers=0"
